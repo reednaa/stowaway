@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-abstract contract RetryCall {
-    function _functionSelector() internal pure virtual returns (bytes4);
-
+library RetryCall {
     /**
      * @notice If Pointer is equal to 0, then nothing was found. Pointer would be 0 IFF the pointer was found in the first word. However, the first word is skipped.
      */
-    function _searchAndCall() internal {
+    function searchAndCall(bytes4 searchFor) internal {
         // We expect calldata to be encoded somewhere as abi-encoded bytes.
         // As a result, assuming that a function took 3 arguments the expected calldata will look something like:
         // bytes4(selector)     // offset 0
@@ -16,9 +14,7 @@ abstract contract RetryCall {
         // bytes32(word)        // offset 68
         // bytes32(length of bytes) // offset 100
         // bytes.... // offset 132
-        // In that case, we need to detect the function selector in the first 4 bytes of the word of offset 132.
-
-        bytes4 searchFor = _functionSelector();
+        // In that case, we need to detect the function selector in the first 4 bytes of the word of offset 132
         bool skip;
         assembly ("memory-safe") {
             // For compatible with Solady's LibZip , we will skip if we discover the function selector to be the invert of _functionSelector.
@@ -60,13 +56,4 @@ abstract contract RetryCall {
             }
         }
     }
-
-    modifier fallbackSearchSelector() {
-        _searchAndCall();
-        _;
-    }
-
-    fallback() external payable virtual fallbackSearchSelector {}
-
-    receive() external payable virtual {}
 }

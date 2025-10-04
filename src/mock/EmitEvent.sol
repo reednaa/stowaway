@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {RetryCall} from "../RetryCall.sol";
+import {Stowaway} from "../Stowaway.sol";
 
 contract EmitEvent {
     event GotData(uint256 a, bytes b, bytes32 c);
@@ -11,6 +11,6 @@ contract EmitEvent {
     }
 
     fallback() external payable {
-        RetryCall.searchAndCall(this.gotData.selector);
+        Stowaway.searchAndCall(this.gotData.selector);
     }
 }

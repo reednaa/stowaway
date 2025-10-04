@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-library RetryCall {
+library Stowaway {
     /**
      * @notice If Pointer is equal to 0, then nothing was found. Pointer would be 0 IFF the pointer was found in the first word. However, the first word is skipped.
      */

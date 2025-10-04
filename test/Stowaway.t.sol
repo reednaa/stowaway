@@ -16,7 +16,7 @@ interface RandomCallback {
     function randomCallback(CallbackStruct calldata s) external;
 }
 
-contract RetryCallTest is Test {
+contract StowawayTest is Test {
     event GotData(uint256 a, bytes b, bytes32 c);
 
     EmitEvent emev;

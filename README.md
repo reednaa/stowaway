@@ -1,4 +1,4 @@
-## Arbitrary function selector injection 
+## Stowaway
 
 This repository contains a proof of concept for an arbitrary calldata injection. Most cross-chain interactions or same-chain fallbacks relies on specific functions being externally called. It is a security feature to ensure nobody can execute arbitrary code on-behalf of a contract. Some alternative implementations works by sending calldata through a secondary contract that then transparently executes the calldata.
 

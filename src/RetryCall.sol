@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {console} from "forge-std/console.sol";
-
 abstract contract RetryCall {
     function _functionSelector() internal pure virtual returns (bytes4);
 
@@ -21,29 +19,33 @@ abstract contract RetryCall {
         // In that case, we need to detect the function selector in the first 4 bytes of the word of offset 132.
 
         bytes4 searchFor = _functionSelector();
-        uint256 cdSize;
+        bool skip;
+        assembly ("memory-safe") {
+            // For compatible with Solady's LibZip , we will skip if we discover the function selector to be the invert of _functionSelector.
+            let searchForInvert := shr(mul(8, 28), not(searchFor))
+            skip := eq(shr(mul(8, 28), calldataload(0)), searchForInvert)
+        }
+        if (skip) return;
 
         assembly ("memory-safe") {
             // Clean lower bits of searchFor
             searchFor := shr(mul(8, 28), searchFor)
 
-            cdSize := calldatasize()
+            let cdSize := calldatasize()
 
             for { let calldataIndex := 36 } gt(cdSize, calldataIndex) { calldataIndex := add(calldataIndex, 0x20) } {
                 let word := calldataload(calldataIndex)
                 let found :=
-                        eq(
-                            // If they all match, the xor will be 0.
-                            xor(searchFor, shr(mul(8, 28), word)), // Select 4 leftmost bytes
-                            0
-                        )
+                    eq(
+                        // If they all match, the xor will be 0.
+                        xor(searchFor, shr(mul(8, 28), word)), // Select 4 leftmost bytes
+                        0
+                    )
                 if found {
                     // Do bounds check and skip if it wouldn't work.
                     let length := calldataload(sub(calldataIndex, 0x20))
-                    if gt(add(length, calldataIndex), calldatasize()) {
-                        continue
-                    }
-                    
+                    if gt(add(length, calldataIndex), calldatasize()) { continue }
+
                     // get the free memory pointer.
                     let m := mload(0x40)
 
@@ -60,7 +62,6 @@ abstract contract RetryCall {
     }
 
     modifier fallbackSearchSelector() {
-        console.logBytes(msg.data);
         _searchAndCall();
         _;
     }

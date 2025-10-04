@@ -7,7 +7,6 @@ import {EmitEvent} from "../src/mock/EmitEvent.sol";
 interface RandomCallback {
     function randomCallback(uint256 a, uint256 b, bytes calldata c) external;
 
-
     struct CallbackStruct {
         uint256 a;
         bytes call;
@@ -63,11 +62,8 @@ contract RetryCallTest is Test {
 
         uint256[] memory amounts = new uint256[](5);
 
-        RandomCallback.CallbackStruct memory cbs = RandomCallback.CallbackStruct({
-            a: 0,
-            call: encodedCall,
-            amounts: amounts
-        });
+        RandomCallback.CallbackStruct memory cbs =
+            RandomCallback.CallbackStruct({a: 0, call: encodedCall, amounts: amounts});
 
         vm.expectEmit();
         emit GotData(a, b, c);

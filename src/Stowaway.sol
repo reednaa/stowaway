@@ -4,6 +4,8 @@ pragma solidity ^0.8.13;
 library Stowaway {
     /**
      * @notice If Pointer is equal to 0, then nothing was found. Pointer would be 0 IFF the pointer was found in the first word. However, the first word is skipped.
+     * @dev If this function makes an external delegate call, it will directly return the result and terminate the context.
+     * If called internally, it must be called at the end of the function but before LibZip.cdFallback is called.
      */
     function searchAndCall(bytes4 searchFor) internal {
         // We expect calldata to be encoded somewhere as abi-encoded bytes.
@@ -22,6 +24,7 @@ library Stowaway {
             searchForInvert := shr(mul(8, 28), not(searchFor))
             skip := eq(shr(mul(8, 28), calldataload(0)), searchForInvert)
         }
+        // exit function context without terminating the context. (for libZip);
         if (skip) return;
 
         assembly ("memory-safe") {

@@ -55,3 +55,12 @@ $ forge build
 $ forge test
 ```
 
+## License Notice
+
+This project has been inspired by or uses code from the following third-party libraries:
+
+- **[Solady](https://github.com/Vectorized/solady)** – Licensed under the [MIT License](https://opensource.org/licenses/MIT)
+
+Each library is included under the terms of its respective license. Copies of the license texts can be found in their source files or original repositories.
+
+When distributing this project, please ensure that all relevant license notices are preserved in accordance with their terms.

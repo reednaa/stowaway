@@ -32,11 +32,16 @@ The search function will go over every word checking if the first 4 bytes of eac
 
 In many usecases for this library, calldata may be submitted multiple times on-chain. This techniquie already introduces overhead by double-encoding a solidity call. To mitigate some of this, the library can be used in conjunction with Solady's LibZip:
 - If the inverse of the provided function selector is found, no search will be executed.
-- If the inverse of the provided function selectir is found, the calldata will also be delegated called on self.
+- If the inverse of the provided function selector is found, the calldata will also be delegated called on self.
 
 ## Usage
 
-Implement the contract and expose your desired function selector to search for. Then imbed your calldata into the callback function and let your contract receive calls.
+Implement a handler function, then in `fallback() external` call `Stowaway.searchAndCall(this.<funcName>.selector);` where `<funcName>` is the name of your implemented handler.
+
+Then `function callback(uint256 index, bytes calldata _data) external;`
+Whenever a callback is made on your contract, ensure the data is provided as: `
+
+This function does not revert if calldata is not found but will terminate context. If your contract should revert when called with a non-implemented function — without a discovered injected call — revert after the call.
 
 ### Build
 

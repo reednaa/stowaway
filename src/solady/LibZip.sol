@@ -20,7 +20,9 @@ library LibZip {
     // Decompression is backwards compatible.
 
     /// @dev Returns the compressed `data`.
-    function flzCompress(bytes memory data) internal pure returns (bytes memory result) {
+    function flzCompress(
+        bytes memory data
+    ) internal pure returns (bytes memory result) {
         /// @solidity memory-safe-assembly
         assembly {
             function ms8(d_, v_) -> _d {
@@ -76,10 +78,10 @@ library LibZip {
             let a := add(data, 0x20)
             let ipStart := a
             let ipLimit := sub(add(ipStart, mload(data)), 13)
-            for { let ip := add(2, a) } lt(ip, ipLimit) {} {
+            for { let ip := add(2, a) } lt(ip, ipLimit) { } {
                 let r := 0
                 let d := 0
-                for {} 1 {} {
+                for { } 1 { } {
                     let s := u24(ip)
                     let h := hash(s)
                     r := add(ipStart, getHash(h))
@@ -101,20 +103,22 @@ library LibZip {
             let end := sub(literals(sub(add(ipStart, mload(data)), a), a, op), 0x7fe0)
             let o := add(result, 0x20)
             mstore(result, sub(end, o)) // Store the length.
-            for {} iszero(gt(o, end)) { o := add(o, 0x20) } { mstore(o, mload(add(o, 0x7fe0))) }
+            for { } iszero(gt(o, end)) { o := add(o, 0x20) } { mstore(o, mload(add(o, 0x7fe0))) }
             mstore(end, 0) // Zeroize the slot after the string.
             mstore(0x40, add(end, 0x20)) // Allocate the memory.
         }
     }
 
     /// @dev Returns the decompressed `data`.
-    function flzDecompress(bytes memory data) internal pure returns (bytes memory result) {
+    function flzDecompress(
+        bytes memory data
+    ) internal pure returns (bytes memory result) {
         /// @solidity memory-safe-assembly
         assembly {
             result := mload(0x40)
             let op := add(result, 0x20)
             let end := add(add(data, 0x20), mload(data))
-            for { data := add(data, 0x20) } lt(data, end) {} {
+            for { data := add(data, 0x20) } lt(data, end) { } {
                 let w := mload(data)
                 let c := byte(0, w)
                 let t := shr(5, c)
@@ -131,7 +135,7 @@ library LibZip {
                     let r := sub(op, s)
                     let f := xor(s, mul(gt(s, 0x20), xor(s, 0x20)))
                     let j := 0
-                } 1 {} {
+                } 1 { } {
                     mstore(add(op, j), mload(add(r, j)))
                     j := add(j, f)
                     if lt(j, l) { continue }
@@ -164,7 +168,9 @@ library LibZip {
     // can be dispatched into the `fallback` and `receive` functions.
 
     /// @dev Returns the compressed `data`.
-    function cdCompress(bytes memory data) internal pure returns (bytes memory result) {
+    function cdCompress(
+        bytes memory data
+    ) internal pure returns (bytes memory result) {
         /// @solidity memory-safe-assembly
         assembly {
             function countLeadingZeroBytes(x_) -> _r {
@@ -181,11 +187,11 @@ library LibZip {
             let end := add(data, mload(data))
             let m := 0x7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f
             let o := add(result, 0x20)
-            for { let i := data } iszero(eq(i, end)) {} {
+            for { let i := data } iszero(eq(i, end)) { } {
                 i := add(i, 1)
                 let c := byte(31, mload(i))
                 if iszero(c) {
-                    for {} 1 {} {
+                    for { } 1 { } {
                         let x := mload(add(i, 0x20))
                         if iszero(x) {
                             let r := min(sub(end, i), 0x20)
@@ -240,7 +246,9 @@ library LibZip {
     }
 
     /// @dev Returns the decompressed `data`.
-    function cdDecompress(bytes memory data) internal pure returns (bytes memory result) {
+    function cdDecompress(
+        bytes memory data
+    ) internal pure returns (bytes memory result) {
         /// @solidity memory-safe-assembly
         assembly {
             if mload(data) {
@@ -251,7 +259,7 @@ library LibZip {
                 let m := 0x7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f
                 let o := add(result, 0x20)
                 mstore(s, not(v)) // Bitwise negate the first 4 bytes.
-                for { let i := add(0x20, data) } 1 {} {
+                for { let i := add(0x20, data) } 1 { } {
                     let c := mload(i)
                     if iszero(byte(0, c)) {
                         c := add(1, byte(1, c))
@@ -303,7 +311,7 @@ library LibZip {
             if iszero(calldatasize()) { return(calldatasize(), calldatasize()) }
             let o := 0
             let f := not(3) // For negating the first 4 bytes.
-            for { let i := 0 } lt(i, calldatasize()) {} {
+            for { let i := 0 } lt(i, calldatasize()) { } {
                 let c := byte(0, xor(add(i, f), calldataload(i)))
                 i := add(i, 1)
                 if iszero(c) {

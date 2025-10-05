@@ -3,11 +3,15 @@ pragma solidity ^0.8.13;
 
 library Stowaway {
     /**
-     * @notice If Pointer is equal to 0, then nothing was found. Pointer would be 0 IFF the pointer was found in the first word. However, the first word is skipped.
-     * @dev If this function makes an external delegate call, it will directly return the result and terminate the context.
+     * @notice If Pointer is equal to 0, then nothing was found. Pointer would be 0 IFF the pointer was found in the
+     * first word. However, the first word is skipped.
+     * @dev If this function makes an external delegate call, it will directly return the result and terminate the
+     * context.
      * If called internally, it must be called at the end of the function but before LibZip.cdFallback is called.
      */
-    function searchAndCall(bytes4 searchFor) internal {
+    function searchAndCall(
+        bytes4 searchFor
+    ) internal {
         // We expect calldata to be encoded somewhere as abi-encoded bytes.
         // As a result, assuming that a function took 3 arguments the expected calldata will look something like:
         // bytes4(selector)     // offset 0
@@ -20,7 +24,8 @@ library Stowaway {
         bool skip;
         bytes32 searchForInvert;
         assembly ("memory-safe") {
-            // For compatible with Solady's LibZip , we will skip if we discover the function selector to be the invert of _functionSelector.
+            // For compatible with Solady's LibZip , we will skip if we discover the function selector to be the invert
+            // of _functionSelector.
             searchForInvert := shr(mul(8, 28), not(searchFor))
             skip := eq(shr(mul(8, 28), calldataload(0)), searchForInvert)
         }
@@ -31,7 +36,8 @@ library Stowaway {
             // Clean lower bits of searchFor
             searchFor := shr(mul(8, 28), searchFor)
 
-            // The first word that can contain the function selector is the third word. I.e: `call(bytes)` would have encoding:
+            // The first word that can contain the function selector is the third word. I.e: `call(bytes)` would have
+            // encoding:
             // 5a6535fc // Selector
             // 0000000000000000000000000000000000000000000000000000000000000020 // Offset
             // 0000000000000000000000000000000000000000000000000000000000000024 // Length

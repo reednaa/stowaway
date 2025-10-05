@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Stowaway} from "../Stowaway.sol";
+import { Stowaway } from "../Stowaway.sol";
 import { LibZip } from "../solady/LibZip.sol";
 
 contract Luggage {
@@ -16,5 +16,5 @@ contract Luggage {
         LibZip.cdFallback();
     }
 
-    receive() external payable {}
+    receive() external payable { }
 }

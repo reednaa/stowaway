@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Stowaway} from "../Stowaway.sol";
+import { Stowaway } from "../Stowaway.sol";
 
 contract Passanger {
     event Smuggled(uint256 a, bytes b, bytes32 c);
@@ -14,5 +14,5 @@ contract Passanger {
         Stowaway.searchAndCall(this.smuggle.selector);
     }
 
-    receive() external payable {}
+    receive() external payable { }
 }

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Test, console} from "forge-std/Test.sol";
-import {Luggage} from "../src/examples/Luggage.sol";
-import {LibZip} from "../src/solady/LibZip.sol";
+import { Luggage } from "../src/examples/Luggage.sol";
+import { LibZip } from "../src/solady/LibZip.sol";
+import { Test, console } from "forge-std/Test.sol";
 
 /// @dev Arbitrary callback functions to try to hide calldata inside.
 interface RandomCallback {
@@ -17,7 +17,9 @@ interface RandomCallback {
     }
 
     /// @dev Hide inside a struct with another variable length object.
-    function randomCallback(CallbackStruct calldata s) external;
+    function randomCallback(
+        CallbackStruct calldata s
+    ) external;
 }
 
 contract LuggageTest is Test {
@@ -81,7 +83,7 @@ contract LuggageTest is Test {
         uint256[] memory amounts = new uint256[](5);
 
         RandomCallback.CallbackStruct memory cbs =
-            RandomCallback.CallbackStruct({a: 0, call: encodedCall, amounts: amounts});
+            RandomCallback.CallbackStruct({ a: 0, call: encodedCall, amounts: amounts });
 
         vm.expectEmit();
         emit Smuggled(a, b, c);

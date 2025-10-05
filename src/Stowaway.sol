@@ -16,9 +16,10 @@ library Stowaway {
         // bytes.... // offset 132
         // In that case, we need to detect the function selector in the first 4 bytes of the word of offset 132
         bool skip;
+        bytes32 searchForInvert;
         assembly ("memory-safe") {
             // For compatible with Solady's LibZip , we will skip if we discover the function selector to be the invert of _functionSelector.
-            let searchForInvert := shr(mul(8, 28), not(searchFor))
+            searchForInvert := shr(mul(8, 28), not(searchFor))
             skip := eq(shr(mul(8, 28), calldataload(0)), searchForInvert)
         }
         if (skip) return;
@@ -27,16 +28,17 @@ library Stowaway {
             // Clean lower bits of searchFor
             searchFor := shr(mul(8, 28), searchFor)
 
-            let cdSize := calldatasize()
-
-            for { let calldataIndex := 36 } gt(cdSize, calldataIndex) { calldataIndex := add(calldataIndex, 0x20) } {
-                let word := calldataload(calldataIndex)
-                let found :=
-                    eq(
-                        // If they all match, the xor will be 0.
-                        xor(searchFor, shr(mul(8, 28), word)), // Select 4 leftmost bytes
-                        0
-                    )
+            // The first word that can contain the function selector is the third word. I.e: `call(bytes)` would have encoding:
+            // 5a6535fc // Selector
+            // 0000000000000000000000000000000000000000000000000000000000000020 // Offset
+            // 0000000000000000000000000000000000000000000000000000000000000024 // Length
+            // 2b096926.... // Payload
+            // Thus init calldataIndex := 4 + 32 + 32
+            for { let calldataIndex := 68 } gt(calldatasize(), calldataIndex) {
+                calldataIndex := add(calldataIndex, 0x20)
+            } {
+                let word := shr(mul(8, 28), calldataload(calldataIndex)) // Select 4 leftmost bytes
+                let found := or(eq(searchFor, word), eq(searchForInvert, word))
                 if found {
                     // Do bounds check and skip if it wouldn't work.
                     let length := calldataload(sub(calldataIndex, 0x20))

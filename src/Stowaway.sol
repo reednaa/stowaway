@@ -1,35 +1,39 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+/**
+ * @title Stowaway – Execute hidden bytes encoded calldata.
+ * @author Alexander (reednaa.eth)
+ * @notice Stowaway is a library intended to help with callback handling. It can search for a function selector in
+ * calldata sent to fallback and execute found bytes encoded calldata.
+ */
 library Stowaway {
     /**
-     * @notice If Pointer is equal to 0, then nothing was found. Pointer would be 0 IFF the pointer was found in the
-     * first word. However, the first word is skipped.
+     * @notice Search for a specific function selector (and its inverse) in calldata and execute found function call as
+     * delegate-call self..
      * @dev If this function makes an external delegate call, it will directly return the result and terminate the
      * context.
      * If called internally, it must be called at the end of the function but before LibZip.cdFallback is called.
+     * @param searchFor Function selector to search for. Both the normal an inverse function selector will be matched
+     * against.
+     * Random hits are unlikely given:
+     * - Solidity words "small".
+     * - If a hit is found, the previous word encoding the length have to be small.
      */
     function searchAndCall(
         bytes4 searchFor
     ) internal {
-        // We expect calldata to be encoded somewhere as abi-encoded bytes.
-        // As a result, assuming that a function took 3 arguments the expected calldata will look something like:
-        // bytes4(selector)     // offset 0
-        // bytes32(word)        // offset 4
-        // bytes32(offset to bytes)      // offset 36
-        // bytes32(word)        // offset 68
-        // bytes32(length of bytes) // offset 100
-        // bytes.... // offset 132
-        // In that case, we need to detect the function selector in the first 4 bytes of the word of offset 132
+        // The searched calldata is assumed to be standard double abi-encoded: The calldata is encoded with a 4 bytes
+        // function selector following by a number of words, with arbitrary length data appended. If a bytes element if
+        // found starting with the desired selector, the previous word should be the length.
         bool skip;
         bytes32 searchForInvert;
         assembly ("memory-safe") {
-            // For compatible with Solady's LibZip , we will skip if we discover the function selector to be the invert
-            // of _functionSelector.
+            // For compatible with Solady's LibZip, the search is skipped if the invert function selector is found.
             searchForInvert := shr(mul(8, 28), not(searchFor))
             skip := eq(shr(mul(8, 28), calldataload(0)), searchForInvert)
         }
-        // exit function context without terminating the context. (for libZip);
+        // exit function context without terminating the context (for libZip).
         if (skip) return;
 
         assembly ("memory-safe") {

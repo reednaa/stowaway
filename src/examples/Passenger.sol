@@ -3,10 +3,14 @@ pragma solidity ^0.8.13;
 
 import { Stowaway } from "../Stowaway.sol";
 
-contract Passanger {
+contract Passenger {
     event Smuggled(uint256 a, bytes b, bytes32 c);
 
-    function smuggle(uint256 a, bytes calldata b, bytes32 c) external {
+    function smuggle(
+        uint256 a,
+        bytes calldata b,
+        bytes32 c
+    ) external {
         emit Smuggled(a, b, c);
     }
 

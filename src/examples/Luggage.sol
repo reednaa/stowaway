@@ -7,7 +7,11 @@ import { LibZip } from "../solady/LibZip.sol";
 contract Luggage {
     event Smuggled(uint256 a, bytes b, bytes32 c);
 
-    function smuggle(uint256 a, bytes calldata b, bytes32 c) external {
+    function smuggle(
+        uint256 a,
+        bytes calldata b,
+        bytes32 c
+    ) external {
         emit Smuggled(a, b, c);
     }
 

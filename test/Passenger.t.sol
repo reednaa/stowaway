@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import { Passanger } from "../src/examples/Passanger.sol";
+import { Passenger } from "../src/examples/Passenger.sol";
 import { Test, console } from "forge-std/Test.sol";
 
 /// @dev Arbitrary callback functions to try to hide calldata inside.
 interface RandomCallback {
     /// @dev Hide the calldata inside a bytes payload as the last word.
-    function randomCallback(uint256 a, uint256 b, bytes calldata c) external;
+    function randomCallback(
+        uint256 a,
+        uint256 b,
+        bytes calldata c
+    ) external;
 
     struct CallbackStruct {
         uint256 a;
@@ -21,13 +25,13 @@ interface RandomCallback {
     ) external;
 }
 
-contract PassangerTest is Test {
+contract PassengerTest is Test {
     event Smuggled(uint256 a, bytes b, bytes32 c);
 
-    Passanger passanger;
+    Passenger passenger;
 
     function setUp() public {
-        passanger = new Passanger();
+        passenger = new Passenger();
     }
 
     /// @dev Reference test
@@ -39,21 +43,24 @@ contract PassangerTest is Test {
         vm.expectEmit();
         emit Smuggled(a, b, c);
 
-        passanger.smuggle(a, b, c);
+        passenger.smuggle(a, b, c);
     }
 
-    function test_smuggle_as_callback(uint256 noiseA, uint256 noiseB) public {
+    function test_smuggle_as_callback(
+        uint256 noiseA,
+        uint256 noiseB
+    ) public {
         uint256 a = uint256(keccak256(bytes("uint256")));
         bytes memory b = bytes("bytes");
         bytes32 c = keccak256(bytes("bytes32"));
 
-        bytes memory encodedCall = abi.encodeCall(Passanger.smuggle, (a, b, c));
+        bytes memory encodedCall = abi.encodeCall(Passenger.smuggle, (a, b, c));
         console.logBytes(encodedCall);
 
         vm.expectEmit();
         emit Smuggled(a, b, c);
 
-        RandomCallback(address(passanger)).randomCallback(noiseA, noiseB, encodedCall);
+        RandomCallback(address(passenger)).randomCallback(noiseA, noiseB, encodedCall);
     }
 
     function test_smuggle_as_struct_callback() public {
@@ -61,7 +68,7 @@ contract PassangerTest is Test {
         bytes memory b = bytes("bytes");
         bytes32 c = keccak256(bytes("bytes32"));
 
-        bytes memory encodedCall = abi.encodeCall(Passanger.smuggle, (a, b, c));
+        bytes memory encodedCall = abi.encodeCall(Passenger.smuggle, (a, b, c));
         console.logBytes(encodedCall);
 
         uint256[] memory amounts = new uint256[](5);
@@ -72,6 +79,6 @@ contract PassangerTest is Test {
         vm.expectEmit();
         emit Smuggled(a, b, c);
 
-        RandomCallback(address(passanger)).randomCallback(cbs);
+        RandomCallback(address(passenger)).randomCallback(cbs);
     }
 }

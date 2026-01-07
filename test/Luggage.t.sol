@@ -8,7 +8,11 @@ import { Test, console } from "forge-std/Test.sol";
 /// @dev Arbitrary callback functions to try to hide calldata inside.
 interface RandomCallback {
     /// @dev Hide the calldata inside a bytes payload as the last word.
-    function randomCallback(uint256 a, uint256 b, bytes calldata c) external;
+    function randomCallback(
+        uint256 a,
+        uint256 b,
+        bytes calldata c
+    ) external;
 
     struct CallbackStruct {
         uint256 a;
@@ -43,7 +47,10 @@ contract LuggageTest is Test {
         luggage.smuggle(a, b, c);
     }
 
-    function test_smuggle_as_callback(uint256 noiseA, uint256 noiseB) public {
+    function test_smuggle_as_callback(
+        uint256 noiseA,
+        uint256 noiseB
+    ) public {
         uint256 a = uint256(keccak256(bytes("uint256")));
         bytes memory b = bytes("bytes");
         bytes32 c = keccak256(bytes("bytes32"));
@@ -57,7 +64,10 @@ contract LuggageTest is Test {
         RandomCallback(address(luggage)).randomCallback(noiseA, noiseB, encodedCall);
     }
 
-    function test_smuggle_as_callback_zipped(uint256 noiseA, uint256 noiseB) public {
+    function test_smuggle_as_callback_zipped(
+        uint256 noiseA,
+        uint256 noiseB
+    ) public {
         uint256 a = uint256(keccak256(bytes("uint256")));
         bytes memory b = bytes("bytes");
         bytes32 c = keccak256(bytes("bytes32"));

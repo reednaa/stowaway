@@ -10,11 +10,11 @@ pragma solidity ^0.8.13;
 library Stowaway {
     /**
      * @notice Search for a specific function selector (and its inverse) in calldata and execute found function call as
-     * delegate-call self..
+     * delegate-call self.
      * @dev If this function makes an external delegate call, it will directly return the result and terminate the
      * context.
-     * If called internally, it must be called at the end of the function but before LibZip.cdFallback is called.
-     * @param searchFor Function selector to search for. Both the normal an inverse function selector will be matched
+     * If called internally, it must be called at the end of fallback but before LibZip.cdFallback is called.
+     * @param searchFor Function selector to search for. Both the normal and inverse function selector will be matched
      * against.
      * Random hits are unlikely given:
      * - Solidity words "small".
@@ -24,7 +24,7 @@ library Stowaway {
         bytes4 searchFor
     ) internal {
         // The searched calldata is assumed to be standard double abi-encoded: The calldata is encoded with a 4 bytes
-        // function selector following by a number of words, with arbitrary length data appended. If a bytes element if
+        // function selector following by a number of words, with arbitrary length data prepended. If a bytes element if
         // found starting with the desired selector, the previous word should be the length.
         bool skip;
         bytes32 searchForInvert;

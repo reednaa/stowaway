@@ -2,28 +2,8 @@
 pragma solidity ^0.8.13;
 
 import { Passenger } from "../src/examples/Passenger.sol";
-import { Test, console } from "forge-std/Test.sol";
-
-/// @dev Arbitrary callback functions to try to hide calldata inside.
-interface RandomCallback {
-    /// @dev Hide the calldata inside a bytes payload as the last word.
-    function randomCallback(
-        uint256 a,
-        uint256 b,
-        bytes calldata c
-    ) external;
-
-    struct CallbackStruct {
-        uint256 a;
-        uint256[] amounts;
-        bytes call;
-    }
-
-    /// @dev Hide inside a struct with another variable length object.
-    function randomCallback(
-        CallbackStruct calldata s
-    ) external;
-}
+import { Test } from "forge-std/Test.sol";
+import { RandomCallback} from "./Luggage.t.sol";
 
 contract PassengerTest is Test {
     event Smuggled(uint256 a, bytes b, bytes32 c);
@@ -55,7 +35,6 @@ contract PassengerTest is Test {
         bytes32 c = keccak256(bytes("bytes32"));
 
         bytes memory encodedCall = abi.encodeCall(Passenger.smuggle, (a, b, c));
-        console.logBytes(encodedCall);
 
         vm.expectEmit();
         emit Smuggled(a, b, c);
@@ -69,7 +48,6 @@ contract PassengerTest is Test {
         bytes32 c = keccak256(bytes("bytes32"));
 
         bytes memory encodedCall = abi.encodeCall(Passenger.smuggle, (a, b, c));
-        console.logBytes(encodedCall);
 
         uint256[] memory amounts = new uint256[](5);
 
@@ -80,5 +58,22 @@ contract PassengerTest is Test {
         emit Smuggled(a, b, c);
 
         RandomCallback(address(passenger)).randomCallback(cbs);
+    }
+
+    function test_smuggle_false_first_hit() public {
+        uint256 a = uint256(keccak256(bytes("uint256")));
+        bytes memory b = bytes("bytes");
+        bytes32 c = keccak256(bytes("bytes32"));
+
+        bytes memory encodedCall = abi.encodeCall(Passenger.smuggle, (a, b, c));
+
+        bytes32 functionSelector = bytes32(Passenger.smuggle.selector);
+
+        vm.expectEmit();
+        emit Smuggled(a, b, c);
+
+        // THis should only hit the proper onces, since all "lengths" exceed the call.
+        RandomCallback(address(passenger))
+            .randomCallbackLarge(functionSelector, functionSelector, 500, functionSelector, encodedCall);
     }
 }

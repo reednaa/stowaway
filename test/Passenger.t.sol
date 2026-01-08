@@ -2,8 +2,8 @@
 pragma solidity ^0.8.13;
 
 import { Passenger } from "../src/examples/Passenger.sol";
+import { RandomCallback } from "./Luggage.t.sol";
 import { Test } from "forge-std/Test.sol";
-import { RandomCallback} from "./Luggage.t.sol";
 
 contract PassengerTest is Test {
     event Smuggled(uint256 a, bytes b, bytes32 c);

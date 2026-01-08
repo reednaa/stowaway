@@ -7,7 +7,6 @@ import { Test } from "forge-std/Test.sol";
 
 /// @dev Arbitrary callback functions to try to hide calldata inside.
 interface RandomCallback {
-
     function randomCallbackSmall(
         bytes calldata c
     ) external;
